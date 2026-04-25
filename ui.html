@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Fontive</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        padding: 16px;
+      }
+
+      button {
+        padding: 10px 14px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      #result {
+        margin-top: 16px;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Fontive</h2>
+    <button id="mutate">Mutate</button>
+
+    <div id="result">
+      Waiting...
+    </div>
+
+    <script>
+      const mutateButton = document.getElementById("mutate");
+      const result = document.getElementById("result");
+
+      mutateButton.onclick = () => {
+        parent.postMessage(
+          { pluginMessage: { type: "mutate-text" } },
+          "*"
+        );
+      };
+
+      window.onmessage = (event) => {
+        const msg = event.data.pluginMessage;
+        if (!msg) return;
+
+        if (msg.type === "mutation-result") {
+          result.innerHTML =
+            "Font: " + msg.font + "<br>" +
+            "Color: " + msg.color + "<br>" +
+            "Effect: " + msg.effect;
+        }
+
+        if (msg.type === "error") {
+          result.textContent = msg.message;
+        }
+      };
+    </script>
+  </body>
+</html>

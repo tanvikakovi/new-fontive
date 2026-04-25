@@ -1,0 +1,16 @@
+{
+  "name": "fontive",
+  "version": "1.0.0",
+  "private": true,
+"scripts": {
+  "build": "esbuild src/code.ts --bundle --outfile=build/code.js && esbuild src/index.tsx --bundle --outfile=build/ui.js --jsx-factory=h --jsx-fragment=Fragment && cp src/ui.html build/ui.html"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.117.0",
+    "esbuild": "^0.25.3",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "preact": "^10.26.4"
+  }
+}
