@@ -104,19 +104,21 @@ const FONT_OPTIONS = [
 ];
 
 const COLOR_OPTIONS = [
-  "#FF4D6D",
-  "#6C5CE7",
-  "#00B894",
-  "#F39C12",
-  "#0984E3",
-  "#111111",
-  "#E84393",
-  "#2D3436",
-  "#00CEC9",
-  "#FAB1A0",
-  "#A29BFE",
-  "#55EFC4"
+  { hex: "#FF4D6D", name: "Flamingo" },
+  { hex: "#6C5CE7", name: "Deep Violet" },
+  { hex: "#00B894", name: "Mint" },
+  { hex: "#F39C12", name: "Amber" },
+  { hex: "#0984E3", name: "Cobalt" },
+  { hex: "#111111", name: "Jet Black" },
+  { hex: "#E84393", name: "Pink" },
+  { hex: "#2D3436", name: "Charcoal" },
+  { hex: "#00CEC9", name: "Teal" },
+  { hex: "#FAB1A0", name: "Peach" },
+  { hex: "#A29BFE", name: "Lavender" },
+  { hex: "#55EFC4", name: "Aqua" }
 ];
+
+const EFFECT_OPTIONS = ["none", "shadow", "outline"];
 
 function hexToRgb(hex) {
   const clean = hex.replace("#", "");
@@ -139,7 +141,7 @@ function randomItem(arr) {
 function buildEffects(effectName) {
   if (effectName === "none") return [];
 
-  if (effectName === "drop-shadow") {
+  if (effectName === "shadow") {
     return [
       {
         type: "DROP_SHADOW",
@@ -153,36 +155,43 @@ function buildEffects(effectName) {
     ];
   }
 
-  if (effectName === "inner-shadow") {
+  if (effectName === "outline") {
     return [
       {
-        type: "INNER_SHADOW",
-        color: { r: 0, g: 0, b: 0, a: 0.22 },
-        offset: { x: 0, y: 2 },
-        radius: 4,
+        type: "DROP_SHADOW",
+        color: { r: 0, g: 0, b: 0, a: 0.9 },
+        offset: { x: 1, y: 1 },
+        radius: 0,
         spread: 0,
         visible: true,
         blendMode: "NORMAL"
-      }
-    ];
-  }
-
-  if (effectName === "layer-blur") {
-    return [
+      },
       {
-        type: "LAYER_BLUR",
-        radius: 1.2,
-        visible: true
-      }
-    ];
-  }
-
-  if (effectName === "background-blur") {
-    return [
+        type: "DROP_SHADOW",
+        color: { r: 0, g: 0, b: 0, a: 0.9 },
+        offset: { x: -1, y: 1 },
+        radius: 0,
+        spread: 0,
+        visible: true,
+        blendMode: "NORMAL"
+      },
       {
-        type: "BACKGROUND_BLUR",
-        radius: 3,
-        visible: true
+        type: "DROP_SHADOW",
+        color: { r: 0, g: 0, b: 0, a: 0.9 },
+        offset: { x: 1, y: -1 },
+        radius: 0,
+        spread: 0,
+        visible: true,
+        blendMode: "NORMAL"
+      },
+      {
+        type: "DROP_SHADOW",
+        color: { r: 0, g: 0, b: 0, a: 0.9 },
+        offset: { x: -1, y: -1 },
+        radius: 0,
+        spread: 0,
+        visible: true,
+        blendMode: "NORMAL"
       }
     ];
   }

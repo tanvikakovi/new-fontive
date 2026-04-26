@@ -127,7 +127,7 @@
 
       <div class="actions">
         <button id="mutateBtn" class="primary">Mutate</button>
-        <button id="refreshBtn" class="secondary">Refresh selection</button>
+        
       </div>
 
       <div id="status" class="status">Loading…</div>
@@ -200,9 +200,7 @@
         send("mutate-text");
       };
 
-      refreshBtn.onclick = () => {
-        send("refresh-selection");
-      };
+      
 
       window.onmessage = (event) => {
         const msg = event.data.pluginMessage;

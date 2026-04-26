@@ -26,6 +26,8 @@ const COLOR_OPTIONS = [
   { hex: "#2D3436", name: "Charcoal" }
 ] as const;
 
+const EFFECT_OPTIONS: MutationEffect[] = ["none", "shadow", "outline"];
+
 function hexToRgb(hex: string): RGB {
   const clean = hex.replace("#", "");
   const num = parseInt(clean, 16);
@@ -149,7 +151,7 @@ async function mutateSelectedText(): Promise<void> {
 
   const fontChoice = randomItem(FONT_OPTIONS);
   const colorChoice = randomItem(COLOR_OPTIONS);
-  const effectChoice = randomItem<MutationEffect>(["none", "shadow", "outline"]);
+  const effectChoice = randomItem(EFFECT_OPTIONS);
 
   try {
     await loadFontsForTextNode(node);
