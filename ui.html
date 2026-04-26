@@ -176,16 +176,23 @@
 
       function applyPreview(msg) {
         previewText.textContent = msg.text || "Aa";
-        previewText.style.fontFamily = `"${msg.fontFamily}", Arial, sans-serif`;
-        previewText.style.fontWeight = /bold/i.test(msg.fontStyle) ? "700" : "400";
-        previewText.style.color = msg.color;
-        previewText.style.textShadow = msg.previewCss.textShadow;
-        previewText.style.webkitTextStroke = msg.previewCss.WebkitTextStroke;
-        previewText.style.filter = msg.previewCss.filter;
+        const previewFontFamily = msg.fontLabel ? msg.fontLabel.replace(/\s+Regular$/, "") : "Arial";
+        previewText.style.fontFamily = `"${previewFontFamily}", Arial, sans-serif`;
+        previewText.style.fontWeight = "400";
+        previewText.style.color = msg.color || "#111";
+        previewText.style.textShadow = "none";
+        previewText.style.webkitTextStroke = "0px";
+        previewText.style.filter = "none";
 
-        fontValue.textContent = msg.fontLabel;
-        colorValue.textContent = msg.color;
-        effectValue.textContent = msg.effect;
+        if (msg.effect === "shadow") {
+          previewText.style.textShadow = "0 4px 8px rgba(0,0,0,0.2)";
+        } else if (msg.effect === "outline") {
+          previewText.style.textShadow = "1px 1px 0 #111, -1px 1px 0 #111, 1px -1px 0 #111, -1px -1px 0 #111";
+        }
+
+        fontValue.textContent = msg.fontLabel || msg.font || "—";
+        colorValue.textContent = msg.colorLabel || msg.color || "—";
+        effectValue.textContent = msg.effectLabel || (msg.effect ? msg.effect.charAt(0).toUpperCase() + msg.effect.slice(1) : "—");
       }
 
       mutateBtn.onclick = () => {

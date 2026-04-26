@@ -9,18 +9,18 @@ const FONT_OPTIONS = [
 ];
 
 const COLOR_OPTIONS = [
-  "#FF4D6D",
-  "#6C5CE7",
-  "#00B894",
-  "#F39C12",
-  "#0984E3",
-  "#111111",
-  "#E84393",
-  "#2D3436",
-  "#00CEC9",
-  "#FAB1A0",
-  "#A29BFE",
-  "#55EFC4"
+  { hex: "#FF4D6D", name: "Flamingo" },
+  { hex: "#6C5CE7", name: "Deep Violet" },
+  { hex: "#00B894", name: "Mint" },
+  { hex: "#F39C12", name: "Amber" },
+  { hex: "#0984E3", name: "Cobalt" },
+  { hex: "#111111", name: "Jet Black" },
+  { hex: "#E84393", name: "Pink" },
+  { hex: "#2D3436", name: "Charcoal" },
+  { hex: "#00CEC9", name: "Teal" },
+  { hex: "#FAB1A0", name: "Peach" },
+  { hex: "#A29BFE", name: "Lavender" },
+  { hex: "#55EFC4", name: "Aqua" }
 ];
 
 function hexToRgb(hex) {
@@ -31,6 +31,10 @@ function hexToRgb(hex) {
     g: ((num >> 8) & 255) / 255,
     b: (num & 255) / 255
   };
+}
+
+function titleCase(value) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 function randomItem(arr) {
@@ -69,7 +73,7 @@ async function mutateSelectedText() {
     node.fills = [
       {
         type: "SOLID",
-        color: hexToRgb(colorChoice)
+        color: hexToRgb(colorChoice.hex)
       }
     ];
 
@@ -137,8 +141,11 @@ async function mutateSelectedText() {
     figma.ui.postMessage({
       type: "mutation-result",
       font: `${fontChoice.family} ${fontChoice.style}`,
-      color: colorChoice,
+      fontLabel: `${fontChoice.family} ${fontChoice.style}`,
+      color: colorChoice.hex,
+      colorLabel: colorChoice.name,
       effect: effectChoice,
+      effectLabel: titleCase(effectChoice),
       preview
     });
 
