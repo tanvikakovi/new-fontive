@@ -127,7 +127,7 @@
 
       <div class="actions">
         <button id="mutateBtn" class="primary">Mutate</button>
-        
+        <button id="saveBtn" class="secondary">Save</button>
       </div>
 
       <div id="status" class="status">Loading…</div>
@@ -154,16 +154,40 @@
           <div id="effectValue" class="detail-value">—</div>
         </div>
       </div>
+      <div class="details-card">
+        <div class="section-label">Saved mutation</div>
+        <div class="detail-row">
+          <div class="detail-label">Font</div>
+          <div id="savedFontValue" class="detail-value">—</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Color</div>
+          <div id="savedColorValue" class="detail-value">—</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Effect</div>
+          <div id="savedEffectValue" class="detail-value">—</div>
+        </div>
+      </div>
     </div>
 
     <script>
       const mutateBtn = document.getElementById("mutateBtn");
-      const refreshBtn = document.getElementById("refreshBtn");
+      const saveBtn = document.getElementById("saveBtn");
       const statusEl = document.getElementById("status");
       const previewText = document.getElementById("previewText");
       const fontValue = document.getElementById("fontValue");
       const colorValue = document.getElementById("colorValue");
       const effectValue = document.getElementById("effectValue");
+      const savedFontValue = document.getElementById("savedFontValue");
+      const savedColorValue = document.getElementById("savedColorValue");
+      const savedEffectValue = document.getElementById("savedEffectValue");
+
+      let savedMutation = {
+        font: "—",
+        color: "—",
+        effect: "—"
+      };
 
       function send(type) {
         parent.postMessage({ pluginMessage: { type } }, "*");
@@ -194,6 +218,22 @@
         colorValue.textContent = msg.colorLabel || msg.color || "—";
         effectValue.textContent = msg.effectLabel || (msg.effect ? msg.effect.charAt(0).toUpperCase() + msg.effect.slice(1) : "—");
       }
+
+      function renderSavedMutation() {
+        savedFontValue.textContent = savedMutation.font;
+        savedColorValue.textContent = savedMutation.color;
+        savedEffectValue.textContent = savedMutation.effect;
+      }
+
+      saveBtn.onclick = () => {
+        savedMutation.font = fontValue.textContent || "—";
+        savedMutation.color = colorValue.textContent || "—";
+        savedMutation.effect = effectValue.textContent || "—";
+        renderSavedMutation();
+        setStatus("Saved current mutation.");
+      };
+
+      renderSavedMutation();
 
       mutateBtn.onclick = () => {
         setStatus("Generating mutation…");
@@ -229,6 +269,7 @@
       };
 
       // Initialize the current mutation display after message handling is ready.
+      renderSavedMutation();
       send("refresh-selection");
     </script>
   </body>
