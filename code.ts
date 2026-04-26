@@ -5,14 +5,14 @@ type MutationEffect = "none" | "shadow" | "outline";
 type UIMessage =
   | { type: "ui-ready" }
   | { type: "mutate-text" }
+  | { type: "refresh-selection" }
   | { type: "reset-text" };
 
 const FONT_OPTIONS: FontName[] = [
   { family: "Inter", style: "Regular" },
-  { family: "Roboto", style: "Regular" },
-  { family: "Open Sans", style: "Regular" },
-  { family: "Montserrat", style: "Regular" },
-  { family: "Playfair Display", style: "Regular" }
+  { family: "Inter", style: "Bold" }
+  // Add more only after confirming they are available:
+  // { family: "Roboto", style: "Regular" }
 ];
 
 const COLOR_OPTIONS = [
@@ -77,62 +77,63 @@ async function loadFontsForTextNode(node: TextNode): Promise<void> {
 }
 
 function getEffects(effectChoice: MutationEffect): Effect[] {
-  if (effectChoice === "none") {
-    return [];
-  }
+  switch (effectChoice) {
+    case "none":
+      return [];
 
-  if (effectChoice === "shadow") {
-    return [
-      {
-        type: "DROP_SHADOW",
-        color: { r: 0, g: 0, b: 0, a: 0.25 },
-        offset: { x: 0, y: 4 },
-        radius: 4,
-        spread: 0,
-        visible: true,
-        blendMode: "NORMAL"
-      }
-    ];
-  }
+    case "shadow":
+      return [
+        {
+          type: "DROP_SHADOW",
+          color: { r: 0, g: 0, b: 0, a: 0.25 },
+          offset: { x: 0, y: 4 },
+          radius: 4,
+          spread: 0,
+          visible: true,
+          blendMode: "NORMAL"
+        }
+      ];
 
-  return [
-    {
-      type: "DROP_SHADOW",
-      color: { r: 0, g: 0, b: 0, a: 0.9 },
-      offset: { x: 1, y: 1 },
-      radius: 0,
-      spread: 0,
-      visible: true,
-      blendMode: "NORMAL"
-    },
-    {
-      type: "DROP_SHADOW",
-      color: { r: 0, g: 0, b: 0, a: 0.9 },
-      offset: { x: -1, y: 1 },
-      radius: 0,
-      spread: 0,
-      visible: true,
-      blendMode: "NORMAL"
-    },
-    {
-      type: "DROP_SHADOW",
-      color: { r: 0, g: 0, b: 0, a: 0.9 },
-      offset: { x: 1, y: -1 },
-      radius: 0,
-      spread: 0,
-      visible: true,
-      blendMode: "NORMAL"
-    },
-    {
-      type: "DROP_SHADOW",
-      color: { r: 0, g: 0, b: 0, a: 0.9 },
-      offset: { x: -1, y: -1 },
-      radius: 0,
-      spread: 0,
-      visible: true,
-      blendMode: "NORMAL"
-    }
-  ];
+    case "outline":
+      return [
+        {
+          type: "DROP_SHADOW",
+          color: { r: 0, g: 0, b: 0, a: 0.9 },
+          offset: { x: 1, y: 1 },
+          radius: 0,
+          spread: 0,
+          visible: true,
+          blendMode: "NORMAL"
+        },
+        {
+          type: "DROP_SHADOW",
+          color: { r: 0, g: 0, b: 0, a: 0.9 },
+          offset: { x: -1, y: 1 },
+          radius: 0,
+          spread: 0,
+          visible: true,
+          blendMode: "NORMAL"
+        },
+        {
+          type: "DROP_SHADOW",
+          color: { r: 0, g: 0, b: 0, a: 0.9 },
+          offset: { x: 1, y: -1 },
+          radius: 0,
+          spread: 0,
+          visible: true,
+          blendMode: "NORMAL"
+        },
+        {
+          type: "DROP_SHADOW",
+          color: { r: 0, g: 0, b: 0, a: 0.9 },
+          offset: { x: -1, y: -1 },
+          radius: 0,
+          spread: 0,
+          visible: true,
+          blendMode: "NORMAL"
+        }
+      ];
+  }
 }
 
 async function mutateSelectedText(): Promise<void> {
@@ -159,7 +160,7 @@ async function mutateSelectedText(): Promise<void> {
       {
         type: "SOLID",
         color: hexToRgb(colorChoice.hex)
-      }
+      } as SolidPaint
     ];
     node.effects = getEffects(effectChoice);
 
@@ -173,11 +174,88 @@ async function mutateSelectedText(): Promise<void> {
       effectLabel: titleCase(effectChoice)
     });
   } catch (error) {
+    console.error("mutateSelectedText failed", error);
     figma.ui.postMessage({
       type: "error",
-      message: "Could not apply that font."
+      message: "Could not apply the selected font or style."
     });
   }
+}
+
+async function refreshSelection(): Promise<void> {
+  const node = getSelectedTextNode();
+
+  if (!node) {
+    figma.ui.postMessage({
+      type: "error",
+      message: "Select exactly one text layer."
+    });
+    return;
+  }
+
+  let preview = "";
+  try {
+    preview = await exportPreview(node);
+  } catch (error) {
+    preview = "";
+  }
+
+  let fontLabel = "Unknown";
+  const fontName = node.fontName;
+  if (fontName !== figma.mixed) {
+    fontLabel = `${fontName.family} ${fontName.style}`;
+  }
+
+  let colorLabel = "Mixed";
+  let colorValue = "#111111";
+  if (Array.isArray(node.fills) && node.fills.length > 0 && node.fills[0].type === "SOLID") {
+    const fill = node.fills[0];
+    const r = Math.round(fill.color.r * 255)
+      .toString(16)
+      .padStart(2, "0");
+    const g = Math.round(fill.color.g * 255)
+      .toString(16)
+      .padStart(2, "0");
+    const b = Math.round(fill.color.b * 255)
+      .toString(16)
+      .padStart(2, "0");
+    colorValue = `#${r}${g}${b}`.toUpperCase();
+    colorLabel = colorValue;
+  }
+
+  let effectLabel = "None";
+  let effectType: MutationEffect = "none";
+  if (Array.isArray(node.effects) && node.effects.length > 0) {
+    const first = node.effects[0];
+    if (first.type === "DROP_SHADOW") {
+      effectLabel = "Drop Shadow";
+      effectType = "shadow";
+    }
+    if (first.type === "INNER_SHADOW") {
+      effectLabel = "Inner Shadow";
+      effectType = "shadow";
+    }
+    if (first.type === "LAYER_BLUR") {
+      effectLabel = "Layer Blur";
+      effectType = "shadow";
+    }
+    if (first.type === "BACKGROUND_BLUR") {
+      effectLabel = "Background Blur";
+      effectType = "shadow";
+    }
+  }
+
+  figma.ui.postMessage({
+    type: "mutation-result",
+    font: fontLabel,
+    fontLabel,
+    color: colorValue,
+    colorLabel,
+    effect: effectType,
+    effectLabel,
+    preview,
+    text: node.characters
+  });
 }
 
 async function resetSelectedText(): Promise<void> {
@@ -199,6 +277,7 @@ async function resetSelectedText(): Promise<void> {
       type: "reset-done"
     });
   } catch (error) {
+    console.error("resetSelectedText failed", error);
     figma.ui.postMessage({
       type: "error",
       message: "Could not reset the selected text."
@@ -206,20 +285,22 @@ async function resetSelectedText(): Promise<void> {
   }
 }
 
-figma.ui.postMessage({ type: "ping" });
-
 figma.ui.onmessage = async (msg: UIMessage) => {
-  if (msg.type === "ui-ready") {
-    figma.notify("UI loaded");
-    return;
-  }
+  switch (msg.type) {
+    case "ui-ready":
+      figma.notify("UI loaded");
+      break;
 
-  if (msg.type === "mutate-text") {
-    await mutateSelectedText();
-    return;
-  }
+    case "mutate-text":
+      await mutateSelectedText();
+      break;
 
-  if (msg.type === "reset-text") {
-    await resetSelectedText();
+    case "refresh-selection":
+      await refreshSelection();
+      break;
+
+    case "reset-text":
+      await resetSelectedText();
+      break;
   }
 };

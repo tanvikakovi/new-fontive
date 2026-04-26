@@ -201,7 +201,7 @@
       };
 
       refreshBtn.onclick = () => {
-        send("check-selection");
+        send("refresh-selection");
       };
 
       window.onmessage = (event) => {
@@ -210,7 +210,7 @@
 
         if (msg.type === "ready") {
           setStatus("Ready. Select one text layer, then click Mutate.");
-          send("check-selection");
+          send("refresh-selection");
           return;
         }
 
@@ -229,6 +229,9 @@
           setStatus(msg.message, true);
         }
       };
+
+      // Initialize the current mutation display after message handling is ready.
+      send("refresh-selection");
     </script>
   </body>
 </html>

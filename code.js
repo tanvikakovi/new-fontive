@@ -255,6 +255,7 @@ async function mutateSelectedText() {
       color: colorChoice.hex,
       colorLabel: colorChoice.name,
       effect: effectChoice,
+      effectLabel: titleCase(effectChoice),
       preview
     });
   } catch (err) {
@@ -298,20 +299,36 @@ async function refreshSelection() {
     colorLabel = `#${r}${g}${b}`.toUpperCase();
   }
 
-  let effectLabel = "none";
+  let effectLabel = "None";
+  let effectType = "none";
   if (Array.isArray(node.effects) && node.effects.length > 0) {
     const first = node.effects[0];
-    if (first.type === "DROP_SHADOW") effectLabel = "drop-shadow";
-    if (first.type === "INNER_SHADOW") effectLabel = "inner-shadow";
-    if (first.type === "LAYER_BLUR") effectLabel = "layer-blur";
-    if (first.type === "BACKGROUND_BLUR") effectLabel = "background-blur";
+    if (first.type === "DROP_SHADOW") {
+      effectLabel = "Drop Shadow";
+      effectType = "shadow";
+    }
+    if (first.type === "INNER_SHADOW") {
+      effectLabel = "Inner Shadow";
+      effectType = "inner-shadow";
+    }
+    if (first.type === "LAYER_BLUR") {
+      effectLabel = "Layer Blur";
+      effectType = "layer-blur";
+    }
+    if (first.type === "BACKGROUND_BLUR") {
+      effectLabel = "Background Blur";
+      effectType = "background-blur";
+    }
   }
 
   figma.ui.postMessage({
     type: "mutation-result",
     font: fontLabel,
+    fontLabel: fontLabel,
     color: colorLabel,
-    effect: effectLabel,
+    colorLabel: colorLabel,
+    effect: effectType,
+    effectLabel: effectLabel,
     preview,
     text: node.characters
   });
